@@ -5,12 +5,12 @@ from src.database.models import User, Statistics, Achievement
 from ..utils.progress_tracker import ProgressTracker
 from ..exercises.generator import ExerciseGenerator
 from src.handlers.ai_handler import AIHandler
-from src.config import WEBAPP_URL
+from src.config import WEBAPP_URL, TELEGRAM_BOT_TOKEN
 from src.handlers.level_test_handler import LevelTestHandler
 import json
 
 class MessageHandler:
-    def __init__(self, engine, ai_handler: AIHandler):
+    def __init__(self, engine, ai_handler):
         self.engine = engine
         self.ai = ai_handler
         self.progress_tracker = ProgressTracker()
