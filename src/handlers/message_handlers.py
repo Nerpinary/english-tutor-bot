@@ -6,6 +6,7 @@ from ..utils.progress_tracker import ProgressTracker
 from ..exercises.generator import ExerciseGenerator
 from src.handlers.ai_handler import AIHandler
 from src.config import WEBAPP_URL
+from src.handlers.level_test_handler import LevelTestHandler
 
 class MessageHandler:
     def __init__(self, engine, ai_handler: AIHandler):
@@ -13,6 +14,7 @@ class MessageHandler:
         self.ai = ai_handler
         self.progress_tracker = ProgressTracker()
         self.exercise_generator = ExerciseGenerator()
+        self.level_test = LevelTestHandler(engine, ai_handler)
         # Создаем основную клавиатуру
         self.main_keyboard = ReplyKeyboardMarkup(
             [
@@ -34,14 +36,23 @@ class MessageHandler:
         with Session(self.engine) as session:
             user = session.query(User).filter_by(telegram_id=user_id).first()
             if not user:
-                user = User(telegram_id=user_id, level='A1')
+                # Новый пользователь - начинаем тест
+                user = User(telegram_id=user_id, level='Unknown')
                 session.add(user)
                 stats = Statistics(user=user)
                 session.add(stats)
                 session.commit()
-        
+                
+                await update.message.reply_text(
+                    "👋 Привет! Я твой персональный помощник в изучении английского языка.\n"
+                    "Давайте для начала определим ваш уровень английского!"
+                )
+                await self.level_test.start_test(update, context)
+                return
+                
+        # Существующий пользователь - показываем обычное приветствие
         await update.message.reply_text(
-            "👋 Привет! Я твой персональный помощник в изучении английского языка.\n"
+            "👋 С возвращением!\n"
             "Нажми на кнопку ниже, чтобы открыть интерактивное приложение:",
             reply_markup=self.webapp_keyboard
         )

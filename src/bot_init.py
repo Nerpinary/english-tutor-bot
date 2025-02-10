@@ -36,9 +36,18 @@ def setup_bot():
     application.add_handler(CommandHandler("exercise", exercise_handler.handle_exercise_request))
     
     # Регистрация обработчика текстовых сообщений
-    application.add_handler(TelegramMessageHandler(filters.TEXT & ~filters.COMMAND, message_handler.handle_message))
+    application.add_handler(TelegramMessageHandler(
+        filters.TEXT & ~filters.COMMAND,
+        message_handler.handle_message
+    ))
     
     # Регистрация обработчика callback-кнопок
     application.add_handler(CallbackQueryHandler(exercise_handler.handle_callback))
+    
+    # Добавляем обработчики для теста уровня
+    application.add_handler(CallbackQueryHandler(
+        message_handler.level_test.handle_test_interaction,
+        pattern="^level_test_"
+    ))
     
     return application 
