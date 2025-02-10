@@ -36,13 +36,14 @@ class MessageHandler:
         with Session(self.engine) as session:
             user = session.query(User).filter_by(telegram_id=user_id).first()
             if not user:
-                # Новый пользователь - начинаем тест
                 user = User(telegram_id=user_id, level='Unknown')
                 session.add(user)
                 stats = Statistics(user=user)
                 session.add(stats)
                 session.commit()
-                
+            
+            # Проверяем, нужно ли пройти тест
+            if await self.level_test.should_take_test(user):
                 await update.message.reply_text(
                     "👋 Привет! Я твой персональный помощник в изучении английского языка.\n"
                     "Давайте для начала определим ваш уровень английского!"
@@ -50,7 +51,7 @@ class MessageHandler:
                 await self.level_test.start_test(update, context)
                 return
                 
-        # Существующий пользователь - показываем обычное приветствие
+        # Пользователь с определенным уровнем
         await update.message.reply_text(
             "👋 С возвращением!\n"
             "Нажми на кнопку ниже, чтобы открыть интерактивное приложение:",
