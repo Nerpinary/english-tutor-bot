@@ -25,12 +25,9 @@ class MessageHandler:
             ],
             resize_keyboard=True
         )
-        # Создаем клавиатуру с кнопкой веб-приложения
+        # Создаем клавиатуру с веб-приложением один раз
         self.webapp_keyboard = ReplyKeyboardMarkup([
-            [KeyboardButton(
-                "🌐 Открыть Web App",
-                web_app=WebAppInfo(url=WEBAPP_URL)  # Telegram сам добавит необходимые параметры
-            )]
+            [KeyboardButton("🌐 English Tutor", web_app=WebAppInfo(url=WEBAPP_URL))]
         ], resize_keyboard=True)
 
     async def start_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -50,7 +47,8 @@ class MessageHandler:
             if await self.level_test.should_take_test(user):
                 await update.message.reply_text(
                     "👋 Привет! Я твой персональный помощник в изучении английского языка.\n"
-                    "Давайте для начала определим ваш уровень английского!"
+                    "Давайте для начала определим ваш уровень английского!",
+                    reply_markup=self.webapp_keyboard  # Добавляем кнопку веб-приложения сразу
                 )
                 await self.level_test.start_test(update, context)
                 return
@@ -76,56 +74,11 @@ class MessageHandler:
 
     async def handle_message(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Обработчик текстовых сообщений"""
-        user_id = update.effective_user.id
-        message = update.message.text
-
-        # Проверяем, не является ли сообщение данными от веб-приложения
-        try:
-            data = json.loads(message)
-            if isinstance(data, dict) and data.get('action') == 'start_level_test':
-                await self.level_test.start_test(update, context)
-                return
-        except json.JSONDecodeError:
-            pass
-
-        # Если пользователь без уровня пытается использовать бота
-        with Session(self.engine) as session:
-            user = session.query(User).filter_by(telegram_id=user_id).first()
-            if await self.level_test.should_take_test(user):
-                await update.message.reply_text(
-                    "Прежде чем начать, давайте определим ваш уровень английского! 📝"
-                )
-                await self.level_test.start_test(update, context)
-                return
-
-        # Обработка нажатий на кнопки меню
-        if message == "📝 Упражнения":
-            return await self.show_exercises_menu(update, context)
-        elif message == "📊 Статистика":
-            return await self.show_statistics(update, context)
-        elif message == "📚 Уроки":
-            return await self.show_lessons_menu(update, context)
-        elif message == "🎯 Цели":
-            return await self.show_goals(update, context)
-        elif message == "❓ Помощь":
-            return await self.help_command(update, context)
-        
-        # Обычная обработка сообщения через AI
-        with Session(self.engine) as session:
-            user = session.query(User).filter_by(telegram_id=user_id).first()
-            if not user:
-                user = User(telegram_id=user_id, level='A1')
-                session.add(user)
-                stats = Statistics(user=user)
-                session.add(stats)
-            else:
-                stats = user.statistics[0]
-                stats.messages_count += 1
-            
-            ai_response = await self.ai.get_response(message, user.level)
-            session.commit()
-            
-            await update.message.reply_text(ai_response, reply_markup=self.main_keyboard)
+        # Всегда показываем клавиатуру с веб-приложением
+        await update.message.reply_text(
+            "Используйте веб-приложение для более удобного взаимодействия:",
+            reply_markup=self.webapp_keyboard
+        )
 
     async def show_exercises_menu(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Показывает меню упражнений"""

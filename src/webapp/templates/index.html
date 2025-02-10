@@ -1,61 +1,119 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>English Tutor</title>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>English Tutor</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/chat.css') }}">
 </head>
 <body>
-    <div class="container">
-        <!-- Главное меню -->
-        <div class="menu-section">
-            <div class="profile-card">
+    <div class="app-container">
+        <!-- Боковая панель -->
+        <div class="sidebar">
+            <div class="user-info">
                 <div class="avatar"></div>
-                <div class="user-info">
-                    <h2 id="username">Loading...</h2>
-                    <p id="level">Level: A1</p>
+                <div class="user-details">
+                    <span id="username">Loading...</span>
+                    <span id="level">Level: ...</span>
                 </div>
             </div>
-            
-            <div class="stats-card">
-                <h3>Your Progress</h3>
-                <div class="stats-grid">
-                    <div class="stat-item">
-                        <span class="stat-value" id="messages-count">0</span>
-                        <span class="stat-label">Messages</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-value" id="exercises-count">0</span>
-                        <span class="stat-label">Exercises</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-value" id="streak-days">0</span>
-                        <span class="stat-label">Streak</span>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="actions-grid">
-                <button class="action-btn" onclick="showExercises()">
-                    <span class="icon">📝</span>
-                    Exercises
+            <nav class="nav-menu">
+                <button class="nav-item active" data-view="dashboard">
+                    <span class="icon">📊</span>
+                    Dashboard
                 </button>
-                <button class="action-btn" onclick="showLessons()">
-                    <span class="icon">📚</span>
-                    Lessons
-                </button>
-                <button class="action-btn" onclick="showChat()">
+                <button class="nav-item" data-view="chat">
                     <span class="icon">💭</span>
                     Chat
                 </button>
-                <button class="action-btn" onclick="showGoals()">
+                <button class="nav-item" data-view="exercises">
+                    <span class="icon">📝</span>
+                    Exercises
+                </button>
+                <button class="nav-item" data-view="lessons">
+                    <span class="icon">📚</span>
+                    Lessons
+                </button>
+                <button class="nav-item" data-view="goals">
                     <span class="icon">🎯</span>
                     Goals
                 </button>
+            </nav>
+            <div class="stats-container">
+                <div class="stat-item">
+                    <span class="stat-label">Messages</span>
+                    <span class="stat-value" id="messages-count">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Exercises</span>
+                    <span class="stat-value" id="exercises-count">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Streak</span>
+                    <span class="stat-value" id="streak-days">0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Основной контент -->
+        <div class="main-content">
+            <!-- Dashboard View -->
+            <div class="view" id="dashboard-view">
+                <h2>Welcome Back! 👋</h2>
+                <div class="dashboard-grid">
+                    <div class="dashboard-card">
+                        <h3>Today's Progress</h3>
+                        <div class="progress-circle">
+                            <span class="progress-text">60%</span>
+                        </div>
+                    </div>
+                    <div class="dashboard-card">
+                        <h3>Next Lesson</h3>
+                        <p>Present Perfect Tense</p>
+                        <button class="start-btn">Start Learning</button>
+                    </div>
+                    <div class="dashboard-card">
+                        <h3>Vocabulary</h3>
+                        <p>Words learned: 120</p>
+                        <div class="progress-bar">
+                            <div class="progress" style="width: 60%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat View -->
+            <div class="view hidden" id="chat-view"></div>
+
+            <!-- Exercises View -->
+            <div class="view hidden" id="exercises-view">
+                <h2>Exercises</h2>
+                <div class="exercises-grid">
+                    <!-- Exercises will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Lessons View -->
+            <div class="view hidden" id="lessons-view">
+                <h2>Lessons</h2>
+                <div class="lessons-grid">
+                    <!-- Lessons will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Goals View -->
+            <div class="view hidden" id="goals-view">
+                <h2>Your Goals</h2>
+                <div class="goals-grid">
+                    <!-- Goals will be loaded here -->
+                </div>
             </div>
         </div>
     </div>
-    <script src="/static/js/app.js"></script>
+
+    <script src="{{ url_for('static', filename='js/chat.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
 </body>
 </html> 

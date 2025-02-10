@@ -1,36 +1,138 @@
 let tg = window.Telegram.WebApp;
+let chat;
 
 // Инициализация приложения
 document.addEventListener('DOMContentLoaded', () => {
-    // Ждем инициализации Telegram Web App
-    if (tg.initData) {
-        init();
-    } else {
-        tg.onEvent('init_data_loaded', init);
+    console.log('App initializing...');
+    
+    // Выводим все доступные данные из Telegram
+    console.log('Telegram WebApp:', {
+        initDataUnsafe: tg.initDataUnsafe,
+        initData: tg.initData,
+        version: tg.version,
+        platform: tg.platform,
+        colorScheme: tg.colorScheme,
+        themeParams: tg.themeParams,
+    });
+
+    // Если есть данные пользователя, выводим их
+    if (tg.initDataUnsafe?.user) {
+        console.log('Telegram User:', {
+            id: tg.initDataUnsafe.user.id,
+            first_name: tg.initDataUnsafe.user.first_name,
+            last_name: tg.initDataUnsafe.user.last_name,
+            username: tg.initDataUnsafe.user.username,
+            language_code: tg.initDataUnsafe.user.language_code
+        });
     }
+
+    initializeApp();
 });
 
-// Основная инициализация
-async function init() {
+async function initializeApp() {
     try {
         tg.ready();
         tg.expand();
-        
-        // Получаем ID пользователя из Telegram Web App
+
         const userId = tg.initDataUnsafe?.user?.id;
-        
         if (!userId) {
-            throw new Error('Не удалось получить ID пользователя');
+            throw new Error('No user ID available');
         }
+
+        // Загружаем данные пользователя
+        const userData = await loadUserData(userId);
         
-        console.log('User ID:', userId); // Для отладки
-        await checkUserLevel(userId);
-        
+        // Инициализируем чат
+        chat = new AIChat(userId, userData.level);
+        const chatContainer = await chat.init();
+        document.getElementById('chat-view').appendChild(chatContainer);
+
+        // Настраиваем навигацию
+        setupNavigation();
+
+        // Загружаем начальный вид
+        showView('dashboard');
+
+        // Устанавливаем обработчик закрытия
+        tg.onEvent('viewportChanged', handleViewportChange);
+
     } catch (error) {
         console.error('Initialization error:', error);
-        document.getElementById('username').textContent = 'Error loading data';
-        document.getElementById('level').textContent = 'Please restart the app';
+        showError('Failed to initialize app');
     }
+}
+
+// Загрузка данных с сервера
+async function loadUserData(userId) {
+    const response = await fetch(`/api/user-data?user_id=${userId}`);
+    if (!response.ok) {
+        throw new Error('Failed to load user data');
+    }
+    const data = await response.json();
+    updateUserInfo(data);
+    return data;
+}
+
+function updateUserInfo(data) {
+    document.getElementById('username').textContent = data.name;
+    document.getElementById('level').textContent = `Level: ${data.level}`;
+    document.getElementById('messages-count').textContent = data.messages;
+    document.getElementById('exercises-count').textContent = data.exercises;
+    document.getElementById('streak-days').textContent = data.streak;
+
+    const avatar = document.querySelector('.avatar');
+    if (data.photo_url) {
+        avatar.style.backgroundImage = `url(${data.photo_url})`;
+    } else {
+        avatar.textContent = data.name.charAt(0).toUpperCase();
+    }
+}
+
+function setupNavigation() {
+    const navItems = document.querySelectorAll('.nav-item');
+    navItems.forEach(item => {
+        item.addEventListener('click', () => {
+            const view = item.dataset.view;
+            showView(view);
+            
+            // Обновляем активную кнопку
+            navItems.forEach(nav => nav.classList.remove('active'));
+            item.classList.add('active');
+        });
+    });
+}
+
+function showView(viewName) {
+    const views = document.querySelectorAll('.view');
+    views.forEach(view => {
+        view.style.display = view.id === `${viewName}-view` ? 'block' : 'none';
+    });
+}
+
+async function handleViewportChange() {
+    if (!tg.isExpanded) {
+        // Приложение закрывается
+        const sessionStats = chat.getSessionDuration();
+        await fetch('/api/end-session', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                user_id: tg.initDataUnsafe.user.id,
+                duration: sessionStats.duration,
+                messages_count: sessionStats.messages
+            })
+        });
+    }
+}
+
+function showError(message) {
+    // Показываем ошибку пользователю
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'error-message';
+    errorDiv.textContent = message;
+    document.body.appendChild(errorDiv);
 }
 
 // Показ ошибки
@@ -96,37 +198,6 @@ function startLevelTest() {
 // Показ основного интерфейса
 function showMainInterface() {
     document.querySelector('.container').style.display = 'block';
-}
-
-// Загрузка данных пользователя
-function loadUserData(data) {
-    try {
-        console.log('Loading user data:', data);
-        
-        // Обновляем аватар
-        const avatarElement = document.querySelector('.avatar');
-        if (data.photo_url) {
-            avatarElement.style.backgroundImage = `url(${data.photo_url})`;
-            avatarElement.style.backgroundSize = 'cover';
-            avatarElement.style.backgroundPosition = 'center';
-        } else {
-            avatarElement.textContent = (data.name || 'U').charAt(0).toUpperCase();
-            avatarElement.style.backgroundColor = getRandomColor(data.name || 'User');
-        }
-        
-        // Обновляем информацию пользователя
-        document.getElementById('username').textContent = data.name || 'Unknown User';
-        document.getElementById('level').textContent = `Level: ${data.level || 'Not set'}`;
-        document.getElementById('messages-count').textContent = data.messages || '0';
-        document.getElementById('exercises-count').textContent = data.exercises || '0';
-        document.getElementById('streak-days').textContent = data.streak || '0';
-        
-        console.log('User data loaded successfully');
-    } catch (error) {
-        console.error('Error loading user data:', error);
-        document.getElementById('username').textContent = 'Error';
-        document.getElementById('level').textContent = 'Please restart';
-    }
 }
 
 // Генерация цвета для аватара
