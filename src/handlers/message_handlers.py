@@ -7,6 +7,7 @@ from ..exercises.generator import ExerciseGenerator
 from src.handlers.ai_handler import AIHandler
 from src.config import WEBAPP_URL
 from src.handlers.level_test_handler import LevelTestHandler
+import json
 
 class MessageHandler:
     def __init__(self, engine, ai_handler: AIHandler):
@@ -74,6 +75,25 @@ class MessageHandler:
         """Обработчик текстовых сообщений"""
         user_id = update.effective_user.id
         message = update.message.text
+
+        # Проверяем, не является ли сообщение данными от веб-приложения
+        try:
+            data = json.loads(message)
+            if isinstance(data, dict) and data.get('action') == 'start_level_test':
+                await self.level_test.start_test(update, context)
+                return
+        except json.JSONDecodeError:
+            pass
+
+        # Если пользователь без уровня пытается использовать бота
+        with Session(self.engine) as session:
+            user = session.query(User).filter_by(telegram_id=user_id).first()
+            if await self.level_test.should_take_test(user):
+                await update.message.reply_text(
+                    "Прежде чем начать, давайте определим ваш уровень английского! 📝"
+                )
+                await self.level_test.start_test(update, context)
+                return
 
         # Обработка нажатий на кнопки меню
         if message == "📝 Упражнения":

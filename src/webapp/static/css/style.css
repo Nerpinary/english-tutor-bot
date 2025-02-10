@@ -35,6 +35,14 @@ body {
     border-radius: 30px;
     background: var(--primary-color);
     margin-right: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: white;
+    font-weight: bold;
+    background-size: cover;
+    background-position: center;
 }
 
 .user-info h2 {
@@ -99,4 +107,29 @@ body {
 .icon {
     font-size: 24px;
     margin-bottom: 8px;
+}
+
+.test-container {
+    text-align: center;
+    padding: 20px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: var(--card-shadow);
+    margin: 20px;
+}
+
+.start-test-btn {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    border-radius: 8px;
+    font-size: 16px;
+    margin-top: 20px;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.start-test-btn:hover {
+    transform: translateY(-2px);
 } 
