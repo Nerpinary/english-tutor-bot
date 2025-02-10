@@ -2,22 +2,31 @@ let tg = window.Telegram.WebApp;
 
 // Инициализация приложения
 document.addEventListener('DOMContentLoaded', () => {
+    // Ждем инициализации Telegram Web App
+    if (tg.initData) {
+        init();
+    } else {
+        tg.onEvent('init_data_loaded', init);
+    }
+});
+
+// Основная инициализация
+function init() {
     tg.ready();
     tg.expand();
     
-    // Получаем initData из URL параметров
-    const urlParams = new URLSearchParams(window.location.search);
-    const userId = urlParams.get('user_id') || tg.initDataUnsafe?.user?.id;
+    // Получаем ID пользователя из Telegram Web App
+    const userId = tg.initDataUnsafe?.user?.id;
     
     if (!userId) {
         console.error('No user ID available');
-        showError('Ошибка авторизации. Пожалуйста, откройте приложение через Telegram.');
+        showError('Не удалось получить данные пользователя. Попробуйте перезапустить приложение.');
         return;
     }
     
-    // Загружаем данные пользователя и проверяем необходимость теста
+    console.log('User ID:', userId); // Для отладки
     checkUserLevel(userId);
-});
+}
 
 // Показ ошибки
 function showError(message) {
@@ -31,8 +40,11 @@ function showError(message) {
 // Проверка уровня пользователя
 async function checkUserLevel(userId) {
     try {
+        console.log('Checking level for user:', userId); // Для отладки
         const response = await fetch(`/api/user-data?user_id=${userId}`);
         const data = await response.json();
+        
+        console.log('User data:', data); // Для отладки
         
         // Если уровень не определен, показываем страницу теста
         if (!data.level || data.level === 'undefined' || data.level === 'Unknown') {
