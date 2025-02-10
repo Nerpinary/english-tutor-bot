@@ -5,6 +5,7 @@ from src.database.models import User, Statistics, Achievement
 from ..utils.progress_tracker import ProgressTracker
 from ..exercises.generator import ExerciseGenerator
 from src.handlers.ai_handler import AIHandler
+from src.config import WEBAPP_URL
 
 class MessageHandler:
     def __init__(self, engine, ai_handler: AIHandler):
@@ -21,6 +22,10 @@ class MessageHandler:
             ],
             resize_keyboard=True
         )
+        # Создаем клавиатуру с кнопкой веб-приложения
+        self.webapp_keyboard = ReplyKeyboardMarkup([
+            [KeyboardButton("🌐 Открыть Web App", web_app=WebAppInfo(url=WEBAPP_URL))]
+        ], resize_keyboard=True)
 
     async def start_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Обработчик команды /start"""
@@ -35,17 +40,10 @@ class MessageHandler:
                 session.add(stats)
                 session.commit()
         
-        keyboard = [
-            [KeyboardButton("🌐 Открыть Web App", web_app=WebAppInfo(url="https://your-domain.com"))]
-        ]
-        reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
-        
         await update.message.reply_text(
             "👋 Привет! Я твой персональный помощник в изучении английского языка.\n"
-            "Я помогу тебе улучшить твой английский через общение, упражнения и игры.\n"
-            "Просто напиши мне что-нибудь на английском!\n\n"
-            "Нажми на кнопку ниже, чтобы открыть приложение:",
-            reply_markup=reply_markup
+            "Нажми на кнопку ниже, чтобы открыть интерактивное приложение:",
+            reply_markup=self.webapp_keyboard
         )
 
     async def help_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
