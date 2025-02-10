@@ -1,0 +1,5 @@
+setup.py
+english_tutor_bot.egg-info/PKG-INFO
+english_tutor_bot.egg-info/SOURCES.txt
+english_tutor_bot.egg-info/dependency_links.txt
+english_tutor_bot.egg-info/top_level.txt

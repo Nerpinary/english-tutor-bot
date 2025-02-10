@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>English Tutor</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Главное меню -->
+        <div class="menu-section">
+            <div class="profile-card">
+                <div class="avatar"></div>
+                <div class="user-info">
+                    <h2 id="username">Loading...</h2>
+                    <p id="level">Level: A1</p>
+                </div>
+            </div>
+            
+            <div class="stats-card">
+                <h3>Your Progress</h3>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <span class="stat-value" id="messages-count">0</span>
+                        <span class="stat-label">Messages</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="exercises-count">0</span>
+                        <span class="stat-label">Exercises</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="streak-days">0</span>
+                        <span class="stat-label">Streak</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="actions-grid">
+                <button class="action-btn" onclick="showExercises()">
+                    <span class="icon">📝</span>
+                    Exercises
+                </button>
+                <button class="action-btn" onclick="showLessons()">
+                    <span class="icon">📚</span>
+                    Lessons
+                </button>
+                <button class="action-btn" onclick="showChat()">
+                    <span class="icon">💭</span>
+                    Chat
+                </button>
+                <button class="action-btn" onclick="showGoals()">
+                    <span class="icon">🎯</span>
+                    Goals
+                </button>
+            </div>
+        </div>
+    </div>
+    <script src="/static/js/app.js"></script>
+</body>
+</html> 

@@ -1,0 +1,10 @@
+python-telegram-bot
+google-generativeai
+python-dotenv
+sqlalchemy
+alembic
+aiosqlite
+flask
+gunicorn
+flask-sqlalchemy
+flask-cors
