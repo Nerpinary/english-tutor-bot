@@ -55,4 +55,4 @@ if DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 
 # Web app settings
-WEBAPP_URL = os.getenv('WEBAPP_URL', 'https://fix-your-english.onrender.com')
+WEBAPP_URL = 'https://english-tutor-bot.onrender.com'  # Добавили конкретный URL
