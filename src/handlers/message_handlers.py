@@ -27,7 +27,8 @@ class MessageHandler:
         )
         # Создаем клавиатуру с кнопкой веб-приложения
         self.webapp_keyboard = ReplyKeyboardMarkup([
-            [KeyboardButton("🌐 Открыть Web App", web_app=WebAppInfo(url=WEBAPP_URL))]
+            [KeyboardButton("🌐 Открыть Web App", 
+                web_app=WebAppInfo(url=f"{WEBAPP_URL}?user_id="))]  # ID будет добавлен автоматически
         ], resize_keyboard=True)
 
     async def start_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):

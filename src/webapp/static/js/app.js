@@ -5,14 +5,33 @@ document.addEventListener('DOMContentLoaded', () => {
     tg.ready();
     tg.expand();
     
+    // Получаем initData из URL параметров
+    const urlParams = new URLSearchParams(window.location.search);
+    const userId = urlParams.get('user_id') || tg.initDataUnsafe?.user?.id;
+    
+    if (!userId) {
+        console.error('No user ID available');
+        showError('Ошибка авторизации. Пожалуйста, откройте приложение через Telegram.');
+        return;
+    }
+    
     // Загружаем данные пользователя и проверяем необходимость теста
-    checkUserLevel();
+    checkUserLevel(userId);
 });
 
+// Показ ошибки
+function showError(message) {
+    document.querySelector('.container').innerHTML = `
+        <div class="error-container">
+            <p class="error-message">${message}</p>
+        </div>
+    `;
+}
+
 // Проверка уровня пользователя
-async function checkUserLevel() {
+async function checkUserLevel(userId) {
     try {
-        const response = await fetch(`/api/user-data?user_id=${tg.initDataUnsafe.user.id}`);
+        const response = await fetch(`/api/user-data?user_id=${userId}`);
         const data = await response.json();
         
         // Если уровень не определен, показываем страницу теста
@@ -25,6 +44,7 @@ async function checkUserLevel() {
         }
     } catch (error) {
         console.error('Error checking user level:', error);
+        showError('Ошибка загрузки данных. Пожалуйста, попробуйте позже.');
     }
 }
 

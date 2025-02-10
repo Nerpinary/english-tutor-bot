@@ -132,4 +132,19 @@ body {
 
 .start-test-btn:hover {
     transform: translateY(-2px);
+}
+
+.error-container {
+    text-align: center;
+    padding: 20px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: var(--card-shadow);
+    margin: 20px;
+}
+
+.error-message {
+    color: #dc3545;
+    font-size: 16px;
+    margin: 0;
 } 
